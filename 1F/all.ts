@@ -1,18 +1,9 @@
 const baseNumberList = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
 
-// interface Caption {
-//   h1?: string,
-//   h2?: string,
-//   h3?: string,
-//   h4?: string,
-//   h5?: string,
-//   h6?: string,
-// }
-
 interface DOM {
   tag: string,
   classList?: string[],
-  content?: string | HTMLElement[]
+  content?: string | (HTMLElement | DocumentFragment)[]
 }
 
 const createDOM: (DOM: DOM) => HTMLElement = ({tag, classList, content}) => {
@@ -31,37 +22,25 @@ const createDOM: (DOM: DOM) => HTMLElement = ({tag, classList, content}) => {
   return el
 }
 
-// const createCaption: (tags: Caption) => DocumentFragment = tags => {
-//   const fragment = document.createDocumentFragment()
-
-//   for (let el in tags) {
-//     fragment.appendChild(
-//       createDOM({
-//         tag: el,
-//         content: tags[el]
-//       })
-//     )
-//   }
-
-//   return fragment
-// }
-
 const createMultiplicationList: (num: number) => HTMLElement = num => {
-  const li = document.createElement('li')
+  const li = createDOM({
+    tag: 'li',
+    classList: ['multiplication-chart-item']
+  })
 
-  const title = document.createElement('h2')
-  title.appendChild(document.createTextNode(`${num}`))
-  title.classList.add('item-title')
+  const title = createDOM({
+    tag: 'h2',
+    classList: ['item-title'],
+    content: `${num}`
+  })
 
   li.appendChild(title)
-  li.classList.add('multiplication-chart-item')
 
   baseNumberList.forEach(baseNum => {
-    const multiplicationItem = document.createElement('div')
-
-    multiplicationItem.appendChild(
-      document.createTextNode(`${ num } x ${ baseNum } = ${ num * baseNum }`)
-    )
+    const multiplicationItem = createDOM({
+      tag: 'div',
+      content: `${ num } x ${ baseNum } = ${ num * baseNum }`
+    })
 
     li.appendChild(multiplicationItem)
   })
@@ -69,30 +48,42 @@ const createMultiplicationList: (num: number) => HTMLElement = num => {
   return li
 }
 
-const chart = document.querySelector('.multiplication-chart')
-const fragment = document.createDocumentFragment()
 
-// const captionPart = document.createElement('li')
-// captionPart.classList.add('caption-part')
-// captionPart.appendChild(
-//   createDOM({
-//     tag: 'div',
-//     classList: ['border']
-//   })
-// )
 const captionPart = createDOM({
   tag: 'li',
   classList: ['caption-part'],
-  // content: createDOM({
-  //   tag: 'div',
-  //   classList: ['border']
-  // })
+  content: [
+    createDOM({
+      tag: 'div',
+      classList: ['border']
+    }),
+    createDOM({
+      tag: 'h1',
+      content: '九九乘法表'
+    }),
+    createDOM({
+      tag: 'h4',
+      content: 'MULTIPLICATION CHART'
+    }),
+    createDOM({
+      tag: 'div',
+      classList: ['border']
+    })
+  ]
 })
 
-
+const chartContentFragment = document.createDocumentFragment()
 baseNumberList.slice(1, 9).forEach(baseNum => {
-  fragment.appendChild(createMultiplicationList(baseNum))
+  chartContentFragment.appendChild(createMultiplicationList(baseNum))
 })
 
-
-chart.appendChild(fragment)
+document.querySelector('.wrapper').appendChild(
+  createDOM({
+    tag: 'ul',
+    classList: ['multiplication-chart'],
+    content: [
+      captionPart,
+      chartContentFragment
+    ]
+  })
+)
